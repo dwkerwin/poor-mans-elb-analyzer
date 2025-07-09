@@ -21,6 +21,31 @@ Much better than manually reviewing log files one at a time in a text editor, a 
 - GoAccess installed (`brew install goaccess`)
 - Access to the S3 bucket containing ELB logs
 
+### Setting up the AWS CLI
+
+If you don't have the AWS CLI set up yet, here’s a quick guide for macOS:
+
+1.  **Install the AWS CLI**: The easiest way is using [Homebrew](https://brew.sh/):
+    ```bash
+    brew install awscli
+    ```
+    For other installation options, see the [official AWS CLI installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+
+2.  **Configure Your Credentials**: To connect to your AWS account, run `aws configure`. This command will create a `~/.aws/credentials` file to securely store your keys. You'll need an AWS Access Key ID and Secret Access Key.
+    ```bash
+    # Use the --profile flag to create a named profile
+    # This is useful if you manage multiple AWS accounts
+    aws configure --profile your-aws-profile-name
+    ```
+    The command will prompt you to enter your credentials:
+    ```
+    AWS Access Key ID [None]: YOUR_ACCESS_KEY_ID
+    AWS Secret Access Key [None]: YOUR_SECRET_ACCESS_KEY
+    Default region name [None]: us-east-1
+    Default output format [None]: json
+    ```
+    Make sure the profile name you use here (`your-aws-profile-name`) matches the `AWS_PROFILE` you set in your `.env` file or export as an environment variable.
+
 ## Quick Start
 
 ### 1. Find Your S3 Log Path
