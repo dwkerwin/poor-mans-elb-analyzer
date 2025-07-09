@@ -1,13 +1,19 @@
 # Poor Man's ELB Analyzer
 
-A lightweight solution for analyzing AWS Elastic Load Balancer (ALB/ELB/NLB) access logs when you don't have a proper log aggregator like Splunk or Datadog. If your ELB logs are stored in S3 but you need to quickly analyze them without expensive tooling, this is your go-to solution.
+A lightweight solution for analyzing AWS Elastic Load Balancer (ALB/ELB/NLB) access logs when you don't have a proper log aggregator like Splunk or Sumologic. If your ELB logs are stored in S3 but you need to quickly analyze them without expensive tooling, this is a quick and dirty solution.
 
 This toolkit provides:
 - **GoAccess integration** - Beautiful HTML dashboards with interactive charts and graphs
 - **Custom analysis scripts** - Command-line tools for specific analysis like 5xx error deep-dives, top IPs, and endpoint performance
 - **Simple setup** - Just a few commands to download logs from S3 and generate reports
 
-Much better than manually reviewing log files one at a time in a text editor, and perfect for cost-conscious teams who need occasional log analysis without the overhead of enterprise logging solutions.
+Much better than manually reviewing log files one at a time in a text editor, a workable solution for cost conscious teams who need occasional log analysis without the overhead of enterprise logging solutions.
+
+## ⚠️ First Time Setup
+
+**Don't have ELB access logging configured yet?** You'll need to set up logging from your ELB to S3 first.
+
+👉 **[Follow our setup guide](setup-elb-s3-logging.md)** to configure ELB access logging to S3, then come back here.
 
 ## Prerequisites
 
