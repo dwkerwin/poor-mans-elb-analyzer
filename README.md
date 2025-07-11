@@ -142,12 +142,12 @@ find elb-logs -name "*.gz" -exec gunzip {} \;
 
 ### 7. Generate GoAccess Report
 ```bash
-goaccess elb_converted.log --log-format=COMBINED -o elb_goaccess_report.html
+goaccess elb_converted.log --log-format=COMBINED -o output/elb_goaccess_report.html
 ```
 
 ### 8. Open the Report
 ```bash
-open elb_goaccess_report.html
+open output/elb_goaccess_report.html
 ```
 
 ## Analysis Scripts
@@ -173,6 +173,52 @@ Run `./analyze_5xx_errors.sh` for detailed server error analysis:
 
 **Usage**: `./analyze_5xx_errors.sh [log_directory]`  
 Default log directory is `elb-logs` if not specified.
+
+### URL-Specific Log Extraction Script
+Run `./extract_url_logs.sh` for detailed extraction of logs matching specific status codes and URLs:
+- Flexible status code patterns (5XX, 4XX, exact codes like 500, or XXX for all)
+- Detailed CSV output with timestamp, IP, status code, response times, and user agent
+- Automatic URL pattern matching (e.g., "checkout" matches any URL containing "checkout")
+- Response time analysis and quick statistics
+- Perfect for analyzing critical endpoints, error patterns, or specific user flows
+
+**Usage**: `./extract_url_logs.sh "<status_pattern>" "<url_pattern>" "<output_file>"`
+
+**Examples**:
+```bash
+# Extract 5xx errors for checkout
+./extract_url_logs.sh "5XX" "checkout/onepage/success" output/checkout_5xx.csv
+
+# Extract exact 500 errors for checkout
+./extract_url_logs.sh "500" "checkout/onepage/success" output/checkout_500.csv
+
+# Extract 4xx errors for API endpoints
+./extract_url_logs.sh "4XX" "api/v1/" output/api_4xx.csv
+
+# Extract all requests for login pages
+./extract_url_logs.sh "XXX" "login" output/all_login.csv
+
+# Extract 404 errors for missing images
+./extract_url_logs.sh "404" "images/" output/missing_images.csv
+```
+
+**Status Pattern Options**:
+- `XXX` - Any status code
+- `5XX` - Any 5xx error (500-599)  
+- `4XX` - Any 4xx error (400-499)
+- `3XX` - Any 3xx redirect (300-399)
+- `2XX` - Any 2xx success (200-299)
+- `500` - Exact status code (500, 404, etc.)
+
+The output CSV includes:
+- Timestamp
+- Client IP address
+- HTTP status code
+- ELB response time (milliseconds)
+- Backend response time (milliseconds)
+- Request method (GET, POST, etc.)
+- Full URL with parameters
+- User agent string
 
 ## Understanding the GoAccess Dashboard
 
@@ -203,7 +249,7 @@ If you have multiple ELBs to analyze, run the tool separately for each one by ch
 ### Real-time Monitoring
 For real-time log analysis, you can set up GoAccess to monitor logs as they're written:
 ```bash
-goaccess elb_converted.log --log-format=COMBINED -o elb_goaccess_report.html --real-time-html
+goaccess elb_converted.log --log-format=COMBINED -o output/elb_goaccess_report.html --real-time-html
 ```
 
 ### Custom Time Ranges
@@ -211,7 +257,7 @@ You can filter the converted logs by time range before running GoAccess:
 ```bash
 # Filter logs for specific hour range
 grep "08/Jul/2025:1[0-5]:" elb_converted.log > filtered_logs.log
-goaccess filtered_logs.log --log-format=COMBINED -o filtered_report.html
+goaccess filtered_logs.log --log-format=COMBINED -o output/filtered_report.html
 ```
 
  

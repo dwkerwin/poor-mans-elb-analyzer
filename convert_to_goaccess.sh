@@ -88,8 +88,8 @@ if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
     echo "📁 Output: $OUTPUT_FILE"
     echo ""
     echo "Next steps:"
-    echo "  1. Generate GoAccess report: goaccess $OUTPUT_FILE --log-format=COMBINED -o elb_goaccess_report.html"
-    echo "  2. Open report: open elb_goaccess_report.html"
+    echo "  1. Generate GoAccess report: goaccess $OUTPUT_FILE --log-format=COMBINED -o output/elb_goaccess_report.html"
+echo "  2. Open report: open output/elb_goaccess_report.html"
 else
     echo "❌ Error: Conversion failed or no data was converted."
     exit 1

@@ -3,7 +3,9 @@ elb-logs/
 
 # Generated reports
 elb_converted.log
-elb_goaccess_report.html
+
+# Analysis output files (CSV reports, HTML reports, etc.)
+output/
 
 # Development history
 .specstory/
