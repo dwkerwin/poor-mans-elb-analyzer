@@ -174,26 +174,41 @@ Run `./analyze_5xx_errors.sh` for detailed server error analysis:
 **Usage**: `./analyze_5xx_errors.sh [log_directory]`  
 Default log directory is `elb-logs` if not specified.
 
-### URL-Specific Error Analysis Script
-Run `./analyze_url_errors.sh` for detailed analysis of 5xx errors on specific URLs:
+### URL-Specific Log Extraction Script
+Run `./extract_url_logs.sh` for detailed extraction of logs matching specific status codes and URLs:
+- Flexible status code patterns (5XX, 4XX, exact codes like 500, or XXX for all)
 - Detailed CSV output with timestamp, IP, status code, response times, and user agent
-- Automatic pattern matching (e.g., "checkout" matches any URL containing "checkout")
+- Automatic URL pattern matching (e.g., "checkout" matches any URL containing "checkout")
 - Response time analysis and quick statistics
-- Perfect for analyzing critical endpoints like checkout processes
+- Perfect for analyzing critical endpoints, error patterns, or specific user flows
 
-**Usage**: `./analyze_url_errors.sh "<url_pattern>" "<output_file>"`
+**Usage**: `./extract_url_logs.sh "<status_pattern>" "<url_pattern>" "<output_file>"`
 
 **Examples**:
 ```bash
-# Analyze checkout errors
-./analyze_url_errors.sh "checkout/onepage/success" output/checkout_errors.csv
+# Extract 5xx errors for checkout
+./extract_url_logs.sh "5XX" "checkout/onepage/success" output/checkout_5xx.csv
 
-# Analyze API errors  
-./analyze_url_errors.sh "api/v1/users" output/api_errors.csv
+# Extract exact 500 errors for checkout
+./extract_url_logs.sh "500" "checkout/onepage/success" output/checkout_500.csv
 
-# Analyze payment-related errors
-./analyze_url_errors.sh "payment" output/payment_errors.csv
+# Extract 4xx errors for API endpoints
+./extract_url_logs.sh "4XX" "api/v1/" output/api_4xx.csv
+
+# Extract all requests for login pages
+./extract_url_logs.sh "XXX" "login" output/all_login.csv
+
+# Extract 404 errors for missing images
+./extract_url_logs.sh "404" "images/" output/missing_images.csv
 ```
+
+**Status Pattern Options**:
+- `XXX` - Any status code
+- `5XX` - Any 5xx error (500-599)  
+- `4XX` - Any 4xx error (400-499)
+- `3XX` - Any 3xx redirect (300-399)
+- `2XX` - Any 2xx success (200-299)
+- `500` - Exact status code (500, 404, etc.)
 
 The output CSV includes:
 - Timestamp
