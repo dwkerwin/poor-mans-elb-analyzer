@@ -142,12 +142,12 @@ find elb-logs -name "*.gz" -exec gunzip {} \;
 
 ### 7. Generate GoAccess Report
 ```bash
-goaccess elb_converted.log --log-format=COMBINED -o elb_goaccess_report.html
+goaccess elb_converted.log --log-format=COMBINED -o output/elb_goaccess_report.html
 ```
 
 ### 8. Open the Report
 ```bash
-open elb_goaccess_report.html
+open output/elb_goaccess_report.html
 ```
 
 ## Analysis Scripts
@@ -173,6 +173,37 @@ Run `./analyze_5xx_errors.sh` for detailed server error analysis:
 
 **Usage**: `./analyze_5xx_errors.sh [log_directory]`  
 Default log directory is `elb-logs` if not specified.
+
+### URL-Specific Error Analysis Script
+Run `./analyze_url_errors.sh` for detailed analysis of 5xx errors on specific URLs:
+- Detailed CSV output with timestamp, IP, status code, response times, and user agent
+- Automatic pattern matching (e.g., "checkout" matches any URL containing "checkout")
+- Response time analysis and quick statistics
+- Perfect for analyzing critical endpoints like checkout processes
+
+**Usage**: `./analyze_url_errors.sh "<url_pattern>" "<output_file>"`
+
+**Examples**:
+```bash
+# Analyze checkout errors
+./analyze_url_errors.sh "checkout/onepage/success" output/checkout_errors.csv
+
+# Analyze API errors  
+./analyze_url_errors.sh "api/v1/users" output/api_errors.csv
+
+# Analyze payment-related errors
+./analyze_url_errors.sh "payment" output/payment_errors.csv
+```
+
+The output CSV includes:
+- Timestamp
+- Client IP address
+- HTTP status code
+- ELB response time (milliseconds)
+- Backend response time (milliseconds)
+- Request method (GET, POST, etc.)
+- Full URL with parameters
+- User agent string
 
 ## Understanding the GoAccess Dashboard
 
@@ -203,7 +234,7 @@ If you have multiple ELBs to analyze, run the tool separately for each one by ch
 ### Real-time Monitoring
 For real-time log analysis, you can set up GoAccess to monitor logs as they're written:
 ```bash
-goaccess elb_converted.log --log-format=COMBINED -o elb_goaccess_report.html --real-time-html
+goaccess elb_converted.log --log-format=COMBINED -o output/elb_goaccess_report.html --real-time-html
 ```
 
 ### Custom Time Ranges
@@ -211,7 +242,7 @@ You can filter the converted logs by time range before running GoAccess:
 ```bash
 # Filter logs for specific hour range
 grep "08/Jul/2025:1[0-5]:" elb_converted.log > filtered_logs.log
-goaccess filtered_logs.log --log-format=COMBINED -o filtered_report.html
+goaccess filtered_logs.log --log-format=COMBINED -o output/filtered_report.html
 ```
 
  
