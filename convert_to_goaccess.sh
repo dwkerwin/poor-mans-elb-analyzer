@@ -71,10 +71,32 @@ find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | awk 'NF > 10 {
   gsub(/^"/, "", request_field)
   gsub(/"$/, "", request_field)
   
-  # Extract user agent
-  user_agent = $16
-  gsub(/^"/, "", user_agent)
-  gsub(/"$/, "", user_agent)
+  # Extract complete user agent (spans multiple fields due to spaces)
+  user_agent = ""
+  in_user_agent = 0
+  for(i=16; i<=NF; i++) {
+    if($i ~ /^"/ && !in_user_agent) {
+      # Start of user agent field
+      in_user_agent = 1
+      user_agent = $i
+      gsub(/^"/, "", user_agent)
+      if($i ~ /"$/) {
+        # Single field user agent
+        gsub(/"$/, "", user_agent)
+        break
+      }
+    } else if(in_user_agent) {
+      if($i ~ /"$/) {
+        # End of user agent field
+        user_agent = user_agent " " $i
+        gsub(/"$/, "", user_agent)
+        break
+      } else {
+        # Middle of user agent field
+        user_agent = user_agent " " $i
+      }
+    }
+  }
   
   # Print in Apache combined log format
   print ip " - - [" formatted_timestamp "] \"" request_field "\" " status " 0 \"-\" \"" user_agent "\""

@@ -1,5 +1,6 @@
 # ELB log files directory
 elb-logs/
+__*/
 
 # Generated reports
 elb_converted.log
