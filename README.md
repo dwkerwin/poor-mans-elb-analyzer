@@ -220,6 +220,45 @@ The output CSV includes:
 - Full URL with parameters
 - User agent string
 
+### E-Commerce Checkout Analysis Script (Python)
+Run `python3 ecommerce_checkout_analysis.py` for comprehensive e-commerce checkout and cart error analysis:
+- **Revenue-focused analysis** - Zeroes in on cart, checkout, payment, and order-related errors
+- **Daily trend analysis** - Shows if checkout errors are increasing over time with day-by-day breakdown
+- **Hourly patterns** - Identifies peak error hours and problematic time periods  
+- **Checkout funnel breakdown** - Analyzes errors by stage (cart → shipping → payment → completion)
+- **Bot vs human traffic** - Distinguishes automated vs real customer errors
+- **Mobile vs desktop** - Identifies platform-specific issues
+- **Performance correlation** - Links slow response times to checkout errors
+- **Actionable recommendations** - Provides specific suggestions based on your data patterns
+
+**Python Requirements**: Python 3.7+ (tested with Python 3.13.3)
+- **No additional setup required** - Uses only Python standard library modules
+- **No virtual environment needed** - All dependencies are built-in to Python
+
+**Usage**: 
+```bash
+# Basic analysis (outputs to screen)
+python3 ecommerce_checkout_analysis.py
+
+# Analyze specific directory
+python3 ecommerce_checkout_analysis.py elb-logs
+
+# Save output to file (in addition to screen display)
+python3 ecommerce_checkout_analysis.py elb-logs --output checkout_analysis.txt
+
+# Save to specific location
+python3 ecommerce_checkout_analysis.py elb-logs --output /tmp/checkout_analysis.log
+```
+
+**Key Features**:
+- Automatically detects checkout-related URL patterns (cart, payment, paypal, stripe, checkout, etc.)
+- Analyzes 5xx (server) errors with detailed breakdowns
+- Tracks error trends over time to identify if problems are getting worse
+- Categorizes errors by checkout funnel stage to pinpoint problem areas
+- Identifies bot traffic that might be skewing error rates
+- Provides performance analysis to find slow checkout processes
+- Generates actionable recommendations based on your specific data patterns
+
 ## Understanding the GoAccess Dashboard
 
 The generated HTML report includes:

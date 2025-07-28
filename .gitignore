@@ -2,8 +2,8 @@
 elb-logs/
 __*/
 
-# Generated reports
-elb_converted.log
+# Generated reports and all log files
+*.log
 
 # Analysis output files (CSV reports, HTML reports, etc.)
 output/

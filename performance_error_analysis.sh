@@ -28,6 +28,16 @@ if [ -z "$LOG_FILES" ]; then
 fi
 
 echo "📁 Found $(echo "$LOG_FILES" | wc -l) log files"
+
+# Extract date range from logs
+echo ""
+echo "📅 DATA RANGE ANALYSIS:"
+echo "======================"
+# Much more efficient: extract dates from filenames instead of processing all file contents
+FIRST_DATE=$(find "$LOG_DIR" -name "*.log" -type f | sed 's/.*_\([0-9]\{8\}\)T[0-9]\{4\}Z_.*/\1/' | sort | head -1 | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+LAST_DATE=$(find "$LOG_DIR" -name "*.log" -type f | sed 's/.*_\([0-9]\{8\}\)T[0-9]\{4\}Z_.*/\1/' | sort | tail -1 | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+echo "First day in data: $FIRST_DATE"
+echo "Last day in data: $LAST_DATE"
 echo ""
 
 # Create temporary files for analysis
