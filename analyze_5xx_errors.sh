@@ -23,6 +23,16 @@ if [ -z "$LOG_FILES" ]; then
     exit 1
 fi
 
+# Extract date range from logs
+echo "📅 DATA RANGE ANALYSIS:"
+echo "======================"
+# Much more efficient: extract dates from filenames instead of processing all file contents
+FIRST_DATE=$(find "$LOG_DIR" -name "*.log" -type f | sed 's/.*_\([0-9]\{8\}\)T[0-9]\{4\}Z_.*/\1/' | sort | head -1 | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+LAST_DATE=$(find "$LOG_DIR" -name "*.log" -type f | sed 's/.*_\([0-9]\{8\}\)T[0-9]\{4\}Z_.*/\1/' | sort | tail -1 | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
+echo "First day in data: $FIRST_DATE"
+echo "Last day in data: $LAST_DATE"
+echo ""
+
 echo "📊 SUMMARY:"
 echo "Total requests: $(find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | wc -l)"
 echo "Total 5xx errors: $(find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | awk '$9 >= 500 && $9 < 600' | wc -l)"
@@ -96,6 +106,28 @@ echo ""
 
 echo "⏰ 5xx ERRORS BY HOUR:"
 echo "====================="
+# Create temporary files for analysis
+TEMP_HOURLY_ALL=$(mktemp)
+TEMP_HOURLY_5XX=$(mktemp)
+
+# Get all requests by hour
+find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | awk '{
+    timestamp = $2
+    gsub(/T/, " ", timestamp)
+    gsub(/\.[0-9]+Z/, "", timestamp)
+    split(timestamp, dt, " ")
+    time_part = dt[2]
+    split(time_part, time_components, ":")
+    hour = time_components[1]
+    all_count[hour]++
+}
+END {
+    for (hour in all_count) {
+        print hour, all_count[hour]
+    }
+}' | sort -k1 > "$TEMP_HOURLY_ALL"
+
+# Get 5xx errors by hour
 find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | awk '$9 >= 500 && $9 < 600 {
     timestamp = $2
     gsub(/T/, " ", timestamp)
@@ -104,13 +136,44 @@ find "$LOG_DIR" -name "*.log" -type f -exec cat {} \; | awk '$9 >= 500 && $9 < 6
     time_part = dt[2]
     split(time_part, time_components, ":")
     hour = time_components[1]
-    count[hour]++
+    error_count[hour]++
 }
 END {
-    for (hour in count) {
-        print hour, count[hour]
+    for (hour in error_count) {
+        print hour, error_count[hour]
     }
-}' | sort -k1 | awk '{printf "%s:00 - %s errors\n", $1, $2}'
+}' | sort -k1 > "$TEMP_HOURLY_5XX"
+
+# Combine and display results with percentages
+awk '
+BEGIN {
+    # Read all requests by hour
+    while ((getline line < "'$TEMP_HOURLY_ALL'") > 0) {
+        split(line, fields, " ")
+        hour = fields[1]
+        total_requests[hour] = fields[2]
+    }
+    close("'$TEMP_HOURLY_ALL'")
+    
+    # Read 5xx errors by hour
+    while ((getline line < "'$TEMP_HOURLY_5XX'") > 0) {
+        split(line, fields, " ")
+        hour = fields[1]
+        error_count[hour] = fields[2]
+    }
+    close("'$TEMP_HOURLY_5XX'")
+    
+    # Print combined results
+    for (hour in total_requests) {
+        errors = (hour in error_count) ? error_count[hour] : 0
+        total = total_requests[hour]
+        percentage = (errors > 0) ? (errors / total * 100) : 0
+        printf "%s:00 - %s errors / %s total requests (%.2f%%)\n", hour, errors, total, percentage
+    }
+}' | sort -k1
+
+# Cleanup temporary files
+rm -f "$TEMP_HOURLY_ALL" "$TEMP_HOURLY_5XX"
 echo ""
 
 echo "🎯 TOP 10 PROBLEMATIC ENDPOINTS (5xx errors):"
